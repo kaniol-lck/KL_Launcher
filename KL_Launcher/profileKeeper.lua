@@ -3,14 +3,19 @@ local profileKeeper = {}
 require "json"
 config = require "config"
 
-local f = assert(io.open(config.game_directory.."/launcher_profiles.json","r"))
+local f = assert(io.open(config.gamepath.."/launcher_profiles.json","r"))
 local data = json.decode(f:read("*a"))
 f:close()
 
 profileKeeper.profiles = data.profiles
+for _, profile in pairs(data.profiles) do 
+    if profile.name == data.selectedProfileName then
+        profileKeeper.selectedProfile = profile
+        break
+    end
+end    
 
-profileKeeper.selectedProfile = data.profiles[data.selectedProfileName]
-
+--print(profileKeeper.selectedProfile.lastVersionId)
 -- code below is used for account management
 
 profileKeeper.selectedUser = data.selectedUser

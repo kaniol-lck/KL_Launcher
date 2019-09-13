@@ -1,14 +1,20 @@
-require "ProfileKeeper"
-require "accountPool"
+profileKeeper = require "profileKeeper"
+accountPool = require "accountPool"
 
 function launch(...)
 	--playerName, gamemode, customizrer
-	local profile = ProfileKeeper.selectedProfile()
-	local account = AccountPool.selectedAccount()
+	local profile = profileKeeper.selectedProfile
+	--local account = accountPool.selectedAccount
 
-	local ProfileKeeper.check(profile)
-	local AccountPool.refresh(account)
-	local customizrer = createCustomizer()
-	
-	launcher.launch(profile, account, customizrer)
+	--profileKeeper.check(profile)
+	--accountPool.refresh(account)
+	require "customizer"
+	local customizer = createCustomizer()
+
+	customizer.replace_map["${auth_player_name}"] = "kaniol"
+
+	require "launch/launcher"
+	launcher.launch(profile, account, customizer)
 end
+
+launch()
