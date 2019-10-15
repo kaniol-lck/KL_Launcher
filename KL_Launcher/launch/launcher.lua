@@ -3,6 +3,20 @@ launcher = {}
 require "json"
 require "customizer"
 
+function launcher.extract(zipfile, path)
+    print("Extracting:"..zipfile)
+    require "zip"
+    local zfile = assert(zip.open(zipfile))
+    for f in zfile:files() do
+        if not string.match(f.filename, "^META%-INF/") then
+            local inf = assert(zfile:open(f.filename))
+            local outf = assert(io.open(path.."/"..f.filename, "wb"))
+            outf:write(inf:read("*a"))
+            outf:close()
+        end
+    end
+end
+
 function launcher.generateCode(profile, account, customizer)
     local arg_t = {}
 
@@ -25,7 +39,7 @@ function launcher.generateCode(profile, account, customizer)
     end
 
     for _, l in pairs(natives_libraries) do
-        os.execute("start 7za x -aos "..customizer.libpath().."/"..l:path().." -o"..customizer.natpath())
+        launcher.extract(customizer.libpath().."/"..l:path(), customizer.natpath())
     end
 
     classpath_t[#classpath_t+1] = customizer.verpath().."/"..vt:jarpath()

@@ -6,7 +6,6 @@ config = require "config"
 local f = assert(io.open(config.gamepath.."/launcher_profiles.json","r"))
 local data = json.decode(f:read("*a"))
 f:close()
-
 profileKeeper.profiles = data.profiles
 for _, profile in pairs(data.profiles) do 
     if profile.name == data.selectedProfileName then
