@@ -1,11 +1,13 @@
-launcher = {}
+local launcher = {}
 
-require "json"
+local json = require "json"
 require "customizer"
+local lfs = require "lfs"
 
 function launcher.extract(zipfile, path)
     print("Extracting:"..zipfile)
     require "zip"
+    lfs.mkdir(path)
     local zfile = assert(zip.open(zipfile))
     for f in zfile:files() do
         if not string.match(f.filename, "^META%-INF/") then
@@ -28,7 +30,7 @@ function launcher.generateCode(profile, account, customizer)
     arg_t[#arg_t+1] = "-Djava.library.path="..customizer.natpath()
 
     arg_t[#arg_t+1] = "-cp"
-    versionTool = require "launch/jsonTools/versionTool"
+    local versionTool = require "jsonTools.versionTool"
     local version = profile.lastVersionId
     local vt = versionTool:new(version)
     local dependeny_libraries, natives_libraries = vt:classify_libraries()
@@ -51,7 +53,6 @@ function launcher.generateCode(profile, account, customizer)
     customizer.replace_map["${game_directory}"] = customizer.gamepath()
     customizer.replace_map["${assets_root}"] = customizer.asspath()
     customizer.replace_map["${assets_index_name}"] = vt:assetIndexId()
-    customizer.replace_map["${user_type}"] = "Legacy"
     customizer.replace_map["${version_type}"] = "KL Launcher"
 
     arg_t[#arg_t+1] = vt:mainClass()
@@ -61,11 +62,36 @@ function launcher.generateCode(profile, account, customizer)
         end
     end
 
+    if customizer.fullscreen then
+        if customizer.size then print "Full screen or custom window size? Select one." return end
+        arg_t[#arg_t+1] = "--fullscreen"
+    end
+
+    if customizer.size then
+        arg_t[#arg_t+1] = "--width"
+        arg_t[#arg_t+1] = customizer.size[1]
+        arg_t[#arg_t+1] = "--height"
+        arg_t[#arg_t+1] = customizer.size[2]
+    end
+
+    if customizer.server then
+        arg_t[#arg_t+1] = "--serverip"
+        arg_t[#arg_t+1] = customizer.server[1]
+        arg_t[#arg_t+1] = "--serverport"
+        arg_t[#arg_t+1] = customizer.server[2]
+    end
+
     return arg_t
 end
 
 function launcher.launch(profile, account, customizer)
-    local startcode = [[start "" "]]..table.concat(launcher.generateCode(profile, account, customizer), [[" "]])..[["]]
+    local startcode = [[""]]..table.concat(launcher.generateCode(profile, account, customizer), [[" "]])..[[""]]
 
-    os.execute(startcode)
+    local mcp = assert(io.popen(startcode, "r"))
+
+    -- print(mcp:read("*a"))
+    mcp:close()
+    os.execute([[rm -rf ]]..customizer.natpath())
 end
+
+return launcher

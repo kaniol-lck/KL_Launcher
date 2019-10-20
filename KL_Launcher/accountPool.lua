@@ -1,7 +1,9 @@
 local accountPool = {}
 
-require "profileKeeper"
+local profileKeeper = require "profileKeeper"
 
 function accountPool.selectedAccessToken()
     return profileKeeper.authenticationDatabase()[profileKeeper.selectedUser.account]
 end
+
+return accountPool

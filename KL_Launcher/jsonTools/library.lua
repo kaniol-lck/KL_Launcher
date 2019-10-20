@@ -22,7 +22,7 @@ function library:name()
     if self:isNatives() then
         return string.match(self.data.downloads.artifact.path, "[^/]+$")
     else
-        return string.match(self.data.downloads.classifiers[natives-windows].path, "[^/]+$")
+        return string.match(self.data.downloads.classifiers["natives-windows"].path, "[^/]+$")
     end
 end
 
@@ -36,6 +36,14 @@ function library:path()
     else
         return self.data.downloads.artifact.path
         -- return string.format("<libraries>/%1/%2/%3/%2-%3.jar", string.gsub(self.data.name, ".", "/"), t[1], t[2], t[1], t[2], t[3])
+    end
+end
+
+function library:url()
+    if self:isNatives() then
+        return self.data.downloads.classifiers["natives-windows"].url
+    else
+        return self.data.downloads.artifact.url
     end
 end
 

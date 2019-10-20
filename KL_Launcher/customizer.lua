@@ -1,4 +1,4 @@
-require "config"
+local config = require "config"
 
 function createCustomizer()
     local customizer = {}

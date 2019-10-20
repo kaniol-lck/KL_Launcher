@@ -1,5 +1,5 @@
-json = require "json"
-config = require "config"
+local json = require "json"
+local config = require "config"
 
 local versionTool = {}
 
@@ -12,7 +12,7 @@ setmetatable(versionTool, {
   })
 
 function versionTool:new(version)
-    local self = setmetatable({}, versionTool)  
+    self = setmetatable({}, versionTool)  
     local f = assert(io.open(string.format("%s/versions/%s/%s.json", config.gamepath, version, version), "r"))
     self.data = json.decode(f:read("*a"))
     self.version = version
@@ -22,7 +22,7 @@ end
 function versionTool:classify_libraries()
     local dependeny_libraries = {}
     local natives_libraries = {}
-    library = require "launch/jsonTools/library"
+    local library = require "jsonTools.library"
     for _, data in pairs(self.data.libraries) do
         local l = library:new(data)
         if l:isNatives() then
